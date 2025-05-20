@@ -1,12 +1,8 @@
-# Byte-compiled / optimized / DLL files
+# Python artifacts
 __pycache__/
 *.py[cod]
 *$py.class
-
-# C extensions
 *.so
-
-# Distribution / packaging
 .Python
 build/
 develop-eggs/
@@ -24,19 +20,25 @@ wheels/
 .installed.cfg
 *.egg
 
-# Virtual environment
-venv/
+# Virtual environments
 env/
+venv/
 ENV/
+.env/
+.venv/
 
-# Output files
-output/
-
-# IDE specific files
+# IDE files
 .idea/
 .vscode/
 *.swp
+*.swo
 .DS_Store
+
+# Project specific
+output/
+*.geojson
+*.html
+*.mbtiles
 
 # Jupyter Notebook
 .ipynb_checkpoints 
