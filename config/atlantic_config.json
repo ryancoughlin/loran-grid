@@ -1,0 +1,108 @@
+{
+    "bounds": [
+        25.0,
+        -82.0,
+        47.0,
+        -67.0
+    ],
+    "grid_spacing": 100,
+    "chains": {
+        "9960": {
+            "name": "Northeast U.S.",
+            "gri": 9960,
+            "master": {
+                "id": "M",
+                "name": "Seneca, NY",
+                "latitude": 42.714088,
+                "longitude": -76.825919,
+                "emission_delay": 0,
+                "coding_delay": 0
+            },
+            "secondaries": {
+                "W": {
+                    "name": "Caribou, ME",
+                    "latitude": 46.807585,
+                    "longitude": -67.926989,
+                    "emission_delay": 13797.20,
+                    "coding_delay": 11000,
+                    "asf": 0
+                },
+                "X": {
+                    "name": "Nantucket, MA",
+                    "latitude": 41.253346,
+                    "longitude": -69.977371,
+                    "emission_delay": 26969.93,
+                    "coding_delay": 25000,
+                    "asf": 0
+                },
+                "Y": {
+                    "name": "Carolina Beach, NC",
+                    "latitude": 34.062836,
+                    "longitude": -77.912806,
+                    "emission_delay": 42221.64,
+                    "coding_delay": 39000,
+                    "asf": 0
+                },
+                "Z": {
+                    "name": "Dana, IN",
+                    "latitude": 39.851794,
+                    "longitude": -87.486552,
+                    "emission_delay": 57162.06,
+                    "coding_delay": 54000,
+                    "asf": 0
+                }
+            }
+        },
+        "7980": {
+            "name": "Southeast U.S.",
+            "gri": 7980,
+            "master": {
+                "id": "M",
+                "name": "Malone, FL",
+                "latitude": 30.994094,
+                "longitude": -85.169251,
+                "emission_delay": 0,
+                "coding_delay": 0
+            },
+            "secondaries": {
+                "W": {
+                    "name": "Grangeville, LA",
+                    "latitude": 30.726394,
+                    "longitude": -90.828778,
+                    "emission_delay": 27443.38,
+                    "coding_delay": 23000,
+                    "asf": 0
+                },
+                "X": {
+                    "name": "Raymondville, TX",
+                    "latitude": 26.532057,
+                    "longitude": -97.833359,
+                    "emission_delay": 45201.88,
+                    "coding_delay": 43000,
+                    "asf": 0
+                },
+                "Y": {
+                    "name": "Jupiter, FL",
+                    "latitude": 27.032887,
+                    "longitude": -80.114841,
+                    "emission_delay": 61542.72,
+                    "coding_delay": 59000,
+                    "asf": 0
+                },
+                "Z": {
+                    "name": "Carolina Beach, NC",
+                    "latitude": 34.062800,
+                    "longitude": -77.912959,
+                    "emission_delay": 0,
+                    "coding_delay": 0,
+                    "asf": 0
+                }
+            }
+        }
+    },
+    "visualization": {
+        "include_coastline": true,
+        "contour_intervals": 100,
+        "label_spacing": 5
+    }
+}
