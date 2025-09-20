@@ -72,18 +72,18 @@ chains:
         asf: 0.0
       "Y":
         id: "Y"
-        name: "Baudette"
-        latitude: 48.7283
-        longitude: -94.6100
-        emission_delay: 39500.0 # μs
+        name: "Carolina Beach"
+        latitude: 34.0628
+        longitude: -77.9130
+        emission_delay: 61537.7 # μs - calibrated to RipCharts with Malone master
         coding_delay: 0.0
         asf: 0.0
       "Z":
         id: "Z"
-        name: "Boise City"
-        latitude: 36.7283
-        longitude: -102.5150
-        emission_delay: 53500.0 # μs
+        name: "Jupiter Inlet"
+        latitude: 26.9489
+        longitude: -80.0747
+        emission_delay: 45172.9 # μs - calibrated to RipCharts with Malone master
         coding_delay: 0.0
         asf: 0.0
 
@@ -103,7 +103,7 @@ chains:
         name: "Carolina Beach"
         latitude: 34.0583
         longitude: -77.9050
-        emission_delay: 11500.0 # μs
+        emission_delay: 46608.1 # μs - calibrated to RipCharts northern points
         coding_delay: 0.0
         asf: 0.0
       "S2_MAL":
@@ -111,7 +111,35 @@ chains:
         name: "Malone"
         latitude: 30.9783
         longitude: -85.1550
-        emission_delay: 25500.0 # μs
+        emission_delay: 61021.0 # μs - calibrated to RipCharts northern points
+        coding_delay: 0.0
+        asf: 0.0
+
+  "9980":
+    name: "Southeast US Chain (9980)"
+    gri: 9980 # microseconds
+    master:
+      id: "M"
+      name: "Greenville"
+      latitude: 34.8647
+      longitude: -82.3700
+      emission_delay: 0.0
+      coding_delay: 0.0
+    secondaries:
+      "Y":
+        id: "Y"
+        name: "Carolina Beach"
+        latitude: 34.0628
+        longitude: -77.9130
+        emission_delay: 61022.7 # μs - calibrated to anchor point
+        coding_delay: 0.0
+        asf: 0.0
+      "Z":
+        id: "Z"
+        name: "Jupiter Inlet"
+        latitude: 26.9489
+        longitude: -80.0747
+        emission_delay: 44661.3 # μs - calibrated to anchor point
         coding_delay: 0.0
         asf: 0.0
 
@@ -211,51 +239,56 @@ regions:
       min_line_length: 5.0
       format_trailing_zeros: true
 
-  fl_ga_sc_7980yz:
-    name: "FL GA SC"
+  sc_ga_fl_7980_yz:
+    name: "SC GA FL"
     display_name: "7980yz"
-    description: "Florida, Georgia, South Carolina region with 7980J Y-Z pairs (Jupiter Master)"
+    description: "South Carolina, Georgia, Florida region with 7980 Y-Z pairs"
 
-    bounds: [-83.0, 27.0, -75.0, 35.0]
+    # Geographic bounds: [min_lon, min_lat, max_lon, max_lat]
+    bounds: [-82.0, 28.0, -75.0, 34.9]
 
+    # Station pairs to generate
     pairs:
-      - chain_id: "7980J"
-        secondary_id: "S1_CB"
+      - chain_id: "7980"
+        secondary_id: "Y"
         family: "Y"
-        orientation: "horizontal"
-      - chain_id: "7980J"
-        secondary_id: "S2_MAL"
+        orientation: "horizontal" # SW-NE lines
+      - chain_id: "7980"
+        secondary_id: "Z"
         family: "Z"
-        orientation: "vertical"
+        orientation: "vertical" # NW-SE lines
 
+    # TD ranges to match RipCharts dense edge-to-edge coverage
     td_ranges:
-      "7980J_S1_CB":
-        min_td: 11000.0
-        max_td: 13000.0
+      "7980_Y":
+        min_td: 58000.0 # Y family - extended further south to match RipCharts
+        max_td: 62500.0 # Y family - extended further west to match RipCharts
         step: 50.0
-        format: "{:05.0f}"
-      "7980J_S2_MAL":
-        min_td: 25000.0
-        max_td: 27000.0
+        format: "{:05.0f}" # 5-digit format with trailing zeros
+      "7980_Z":
+        min_td: 43500.0 # Z family - extended further south to match RipCharts
+        max_td: 47000.0 # Z family - extended further north to match RipCharts
         step: 50.0
-        format: "{:05.0f}"
+        format: "{:05.0f}" # 5-digit format with trailing zeros
 
+    # Calibration anchors to match RipCharts exactly
     calibration_anchors:
-      - latitude: 31.0
-        longitude: -79.0
+      - latitude: 32.61467 # Anchor A (Charleston offshore)
+        longitude: -79.73250 # Anchor A (Charleston offshore)
         td_values:
-          "7980J_S1_CB": 12000.0
-          "7980J_S2_MAL": 26000.0
+          "7980_Y": 60500.0 # RipCharts reference value - ANCHOR A
+          "7980_Z": 45450.0 # RipCharts reference value - ANCHOR A
+      - latitude: 34.75700 # Anchor B (NE corner)
+        longitude: -75.56317 # Anchor B (NE corner)
+        td_values:
+          "7980_Y": 59000.0 # RipCharts reference value - ANCHOR B
+          "7980_Z": 45100.0 # RipCharts reference value - ANCHOR B
 
-    unwrapping:
-      enabled: true
-      gri: 7980.0
-      smooth_iterations: 3
-
+    # Label placement
     labels:
       enabled: true
-      placement: ["start", "middle", "end"]
-      min_line_length: 5.0
+      placement: ["start", "middle", "end"] # Where to place labels on lines
+      min_line_length: 5.0 # km minimum line length for labeling
       format_trailing_zeros: true
 
   south_fl_7980wz:

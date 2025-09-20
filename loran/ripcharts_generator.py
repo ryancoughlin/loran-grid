@@ -53,25 +53,32 @@ def apply_calibration(
     if not anchors:
         return td_grid
     
-    # Find first anchor that has TD values for this pair
-    for anchor in anchors:
-        if pair_id in anchor.td_values:
-            # Find closest grid point to anchor
-            distances = np.sqrt(
-                (lat_grid - anchor.latitude)**2 + 
-                (lon_grid - anchor.longitude)**2
-            )
-            min_idx = np.unravel_index(np.argmin(distances), distances.shape)
-            
-            # Calculate offset needed
-            current_td = td_grid[min_idx]
-            target_td = anchor.td_values[pair_id]
-            offset = target_td - current_td
-            
-            # Apply offset to entire grid
-            return td_grid + offset
+    # Find all anchors that have TD values for this pair
+    valid_anchors = [anchor for anchor in anchors if pair_id in anchor.td_values]
+    if not valid_anchors:
+        return td_grid
     
-    return td_grid
+    # Calculate offsets for each anchor
+    offsets = []
+    for anchor in valid_anchors:
+        # Find closest grid point to anchor
+        distances = np.sqrt(
+            (lat_grid - anchor.latitude)**2 + 
+            (lon_grid - anchor.longitude)**2
+        )
+        min_idx = np.unravel_index(np.argmin(distances), distances.shape)
+        
+        # Calculate offset needed
+        current_td = td_grid[min_idx]
+        target_td = anchor.td_values[pair_id]
+        offset = target_td - current_td
+        offsets.append(offset)
+    
+    # Use average offset from all anchors
+    avg_offset = np.mean(offsets)
+    
+    # Apply offset to entire grid
+    return td_grid + avg_offset
 
 
 def crop_to_bounds(
