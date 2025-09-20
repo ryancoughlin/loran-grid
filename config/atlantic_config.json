@@ -5,7 +5,7 @@
         47.0,
         -67.0
     ],
-    "grid_spacing": 100,
+    "grid_spacing": 50,
     "chains": {
         "9960": {
             "name": "Northeast U.S.",
@@ -98,11 +98,32 @@
                     "asf": 0
                 }
             }
+        },
+        "7980J": {
+            "group_repetition_interval": 7980,
+            "master": {
+                "id": "M_JUP",
+                "name": "Jupiter, FL",
+                "latitude": 27.032887,
+                "longitude": -80.109285,
+                "emission_delay": 0.0
+            },
+            "secondaries": {
+                "S1_CB": {
+                    "name": "Carolina Beach, NC",
+                    "latitude": 34.062778,
+                    "longitude": -77.912778,
+                    "emission_delay": 17044.28,
+                    "coding_delay": 0
+                },
+                "S2_MAL": {
+                    "name": "Malone, FL",
+                    "latitude": 30.993017,
+                    "longitude": -85.168070,
+                    "emission_delay": 31066.82,
+                    "coding_delay": 0
+                }
+            }
         }
-    },
-    "visualization": {
-        "include_coastline": true,
-        "contour_intervals": 100,
-        "label_spacing": 5
     }
 }

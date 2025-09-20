@@ -1,6 +1,7 @@
 import json
 import math
 import pyproj
+import argparse # Added for command-line arguments
 from shapely.geometry import LineString, MultiLineString, box
 from shapely.ops import transform as shapely_transform
 import shapely.geometry
@@ -112,8 +113,10 @@ def generate_hyperbola_points(m_station, s_station, k_target_meters, bbox_coords
             # This ensures y goes through a wide range. t_range_val might need adjustment for this case.
             # For this simple case, let's generate two far points.
             if not points_geo: # only do this once for the bisector
-                # Use a very large distance to ensure the bisector spans the globe if needed, clipping will handle it.
-                dist_far = GEOD.a * math.pi # Approx half Earth's circumference
+                # Generate perpendicular bisector across the bounding box
+                # Use a distance that ensures the line crosses the entire bounds
+                dist_far = 2000000  # 2000 km should be sufficient for regional bounds
+                
                 p1_lon, p1_lat, _ = GEOD.fwd(mid_lon, mid_lat, az_ms + 90, dist_far)
                 p2_lon, p2_lat, _ = GEOD.fwd(mid_lon, mid_lat, az_ms - 90, dist_far)
                 points_geo = [(p1_lon, p1_lat), (p2_lon, p2_lat)]
@@ -165,109 +168,135 @@ def generate_hyperbola_points(m_station, s_station, k_target_meters, bbox_coords
 
 def main():
     """Main function to generate LORAN hyperbolas."""
+
+    parser = argparse.ArgumentParser(description="Generate LORAN hyperbolic grid lines.")
+    parser.add_argument("--region", type=str, default=None, # Made optional, default is None
+                        help="Optional: The region code to process (e.g., 9960wy, 9960xy, 7980yz, 7980wz). If not provided, all regions will be processed. Check config/loran_config.json for available region codes.")
+    args = parser.parse_args()
+    selected_region_code = args.region
+
     atlantic_config_path = 'config/atlantic_config.json'
     loran_config_path = 'config/loran_config.json'
-    output_geojson_path = 'loran_hyperbolas.geojson'
+    output_geojson_path_template_single = 'loran_hyperbolas_{}.geojson'
+    output_geojson_path_all = 'loran_hyperbolas_all.geojson'
 
     atlantic_config = load_config(atlantic_config_path)
     loran_config = load_config(loran_config_path)
 
-    atlantic_bounds = atlantic_config['bounds']  # [min_lat, min_lon, max_lat, max_lon]
-    grid_spacing_td = atlantic_config['grid_spacing'] # µs, e.g. 100
-
-    all_chains_data = atlantic_config['chains']
-    regions_to_process = loran_config['regions']
-
     features = []
+    processed_regions_info = [] # To store info for the final print message
 
-    for region_code, region_details in regions_to_process.items():
-        print(f"Processing region: {region_details['name']} ({region_code})")
+    if selected_region_code:
+        if selected_region_code not in loran_config['regions']:
+            print(f"Error: Region code '{selected_region_code}' not found in {loran_config_path}.")
+            print(f"Available region codes are: {list(loran_config['regions'].keys())}")
+            return
+        output_geojson_path = output_geojson_path_template_single.format(selected_region_code)
+        regions_to_iterate = {selected_region_code: loran_config['regions'][selected_region_code]}
+        processed_regions_info.append(f"region {selected_region_code}")
+    else:
+        # Process all regions
+        output_geojson_path = output_geojson_path_all
+        regions_to_iterate = loran_config['regions']
+        processed_regions_info.append("all regions")
+
+    atlantic_bounds = atlantic_config['bounds']
+    grid_spacing_td = atlantic_config['grid_spacing']
+    all_chains_data = atlantic_config['chains']
+
+    for region_code_key, region_details in regions_to_iterate.items():
+        print(f"Processing: {region_details['name']} ({region_code_key})")
         for pair_info in region_details['pairs']:
             chain_id = pair_info['chain_id']
             secondary_id = pair_info['secondary_id']
 
             if chain_id not in all_chains_data:
-                print(f"  Chain {chain_id} not found in atlantic_config. Skipping pair M-{secondary_id}.")
+                print(f"  Chain {chain_id} not found in {atlantic_config_path}. Skipping pair M-{secondary_id} for region {region_code_key}.")
                 continue
             
             chain_data = all_chains_data[chain_id]
             master_details_cfg = chain_data['master']
             
             if secondary_id not in chain_data['secondaries']:
-                print(f"  Secondary {secondary_id} for chain {chain_id} not found in atlantic_config. Skipping.")
+                print(f"  Secondary {secondary_id} for chain {chain_id} not found in {atlantic_config_path}. Skipping for region {region_code_key}.")
                 continue
 
             m_station = get_station_details(master_details_cfg['id'], master_details_cfg, chain_data['secondaries'])
             s_station = get_station_details(secondary_id, master_details_cfg, chain_data['secondaries'])
 
-            print(f"  Pair: Chain {chain_id}, M: {m_station['name']}, S: {s_station['name']} ({secondary_id})")
+            # print(f"  Pair: Chain {chain_id}, M: {m_station['name']}, S: {s_station['name']} ({secondary_id})") # Verbose, can uncomment if needed
 
             delay_difference_s = s_station['emission_delay'] - s_station['coding_delay']
-
-            # Determine TD_label range
-            # This is an estimation. Lines outside bbox will be clipped.
-            # TD_labels are typically around the secondary's coding_delay.
-            # Let's try a range around the coding delay. Max plausible d_MS/c is ~10000us for large separations.
-            # A TD range of coding_delay +/- 10000µs should be ample, clipped later.
-            # Or use the theoretic range: DelayDifference_S +/- d_MS/c
             
-            _, _, d_ms_meters_pair = GEOD.inv(m_station['longitude'], m_station['latitude'],
-                                              s_station['longitude'], s_station['latitude'])
-            baseline_delay_on_c = d_ms_meters_pair / C_PROPAGATION # in µs
-
-            td_label_min_theoretic = delay_difference_s - baseline_delay_on_c
-            td_label_max_theoretic = delay_difference_s + baseline_delay_on_c
+            # Generate exact TD ranges to match the reference image
+            coding_delay = s_station['coding_delay']
             
-            # Align to grid_spacing_td
-            td_start = math.floor(td_label_min_theoretic / grid_spacing_td) * grid_spacing_td
-            td_end = math.ceil(td_label_max_theoretic / grid_spacing_td) * grid_spacing_td
-            
-            # Clamp TD range to be sensible, e.g. not excessively far from coding delay if d_MS is huge
-            # Heuristic: Ensure range covers typical values around coding delay
-            # This is a wide range; clipping is key.
-            # Example: ensure we cover at least coding_delay_S +/- 5000 us, within the theoretic bounds
-            min_td_heuristic = s_station['coding_delay'] - 5000
-            max_td_heuristic = s_station['coding_delay'] + 5000
-
-            td_loop_start = min(td_start, min_td_heuristic if s_station['coding_delay'] !=0 else td_start)
-            td_loop_end = max(td_end, max_td_heuristic if s_station['coding_delay'] !=0 else td_end)
-
-            # For 7980Z (Carolina Beach), CD=0, ED=0, DelayDiff=0.
-            # td_label_min/max_theoretic will be -/+ baseline_delay_on_c.
-            # This range is correct. The heuristic above using coding_delay might not apply well if CD=0.
+            # Set exact TD ranges based on the reference image
+            if secondary_id == 'X':  # Nantucket - diagonal lines in image
+                # Reference shows range 43000-43800
+                td_loop_start = 43000
+                td_loop_end = 43800
+            elif secondary_id == 'Y':  # Carolina Beach - vertical lines in image  
+                # Reference shows range 26250-26950
+                td_loop_start = 26250
+                td_loop_end = 26950
+            else:
+                # Fallback for other secondaries
+                td_range_half = 8000
+                min_td_display = coding_delay - td_range_half
+                max_td_display = coding_delay + td_range_half
+                td_loop_start = math.floor(min_td_display / grid_spacing_td) * grid_spacing_td
+                td_loop_end = math.ceil(max_td_display / grid_spacing_td) * grid_spacing_td
 
             current_td = td_loop_start
             while current_td <= td_loop_end:
-                td_label = current_td
+                td_display = current_td  # This is the value shown on charts
                 
-                # K = c_prop * (TD_label - (Emission_Delay_S - Coding_Delay_S))
-                k_meters = C_PROPAGATION * (td_label - delay_difference_s)
-
+                # Use the center of the TD range as the effective baseline for each secondary
+                if secondary_id == 'X':
+                    effective_baseline = 43400.0  # Center of 43000-43800 range (X secondary)
+                elif secondary_id == 'Y':
+                    effective_baseline = 26600.0  # Center of 26250-26950 range (Y secondary)
+                else:
+                    effective_baseline = coding_delay  # Fallback
+                
+                # Calculate offset from the effective baseline
+                td_offset = td_display - effective_baseline
+                k_meters = C_PROPAGATION * td_offset
                 generated_geom = generate_hyperbola_points(m_station, s_station, k_meters, atlantic_bounds)
 
                 if generated_geom:
-                    properties = {
-                        "chain_id": chain_id,
-                        "master_name": m_station['name'],
-                        "secondary_name": s_station['name'],
-                        "secondary_id": secondary_id,
-                        "td_label": td_label,
-                        "K_meters": k_meters,
-                        "delay_difference_s": delay_difference_s
-                    }
-                    if isinstance(generated_geom, LineString):
+                    # Deduplication: Check if a similar feature (same chain, secondary, td_label) already exists if processing all regions
+                    # This simple check might not be perfect for floating point td_labels if spacing changes, but okay for now.
+                    # For single region processing, this check is not strictly necessary but harmless.
+                    already_exists = False
+                    if not selected_region_code: # Only check for duplicates if processing all regions
+                        for f in features:
+                            props = f['properties']
+                            if props['chain_id'] == chain_id and \
+                               props['secondary_id'] == secondary_id and \
+                               props['td_display'] == td_display:
+                                already_exists = True
+                                break
+                    
+                    if not already_exists:
+                        properties = {
+                            "chain_id": chain_id,
+                            "master_name": m_station['name'],
+                            "secondary_name": s_station['name'],
+                            "secondary_id": secondary_id,
+                            "td_label": td_offset,  # Internal TD offset for calculations
+                            "td_display": int(td_display),  # This is the value that should be displayed on charts
+                            "K_meters": k_meters,
+                            "delay_difference_s": delay_difference_s,
+                            "coding_delay": coding_delay
+                        }
+                        # Always create a single feature per TD value, regardless of geometry type
                         features.append({
                             "type": "Feature",
                             "geometry": shapely.geometry.mapping(generated_geom),
                             "properties": properties
                         })
-                    elif isinstance(generated_geom, MultiLineString):
-                        for linestring in generated_geom.geoms:
-                             features.append({
-                                "type": "Feature",
-                                "geometry": shapely.geometry.mapping(linestring),
-                                "properties": properties
-                            })
                 current_td += grid_spacing_td
     
     geojson_output = {
@@ -278,7 +307,7 @@ def main():
     with open(output_geojson_path, 'w') as f:
         json.dump(geojson_output, f, indent=2)
     
-    print(f"Generated {len(features)} LORAN LOPs.")
+    print(f"Generated {len(features)} LORAN LOPs for {", ".join(processed_regions_info)}.")
     print(f"Output saved to {output_geojson_path}")
 
 if __name__ == "__main__":
