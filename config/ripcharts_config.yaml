@@ -136,37 +136,26 @@ regions:
         family: "Y"
         orientation: "horizontal" # SW-NE lines
 
-    # TD ranges extended for better coverage
+    # TD ranges to match RipCharts dense edge-to-edge coverage
     td_ranges:
       "9960_W":
-        min_td: 12000.0 # Extended leftward for more water coverage
-        max_td: 16500.0 # Extended rightward for complete coverage
+        min_td: 11500.0 # Extended to match RipCharts leftmost lines
+        max_td: 17000.0 # Extended to match RipCharts rightmost lines
         step: 50.0
         format: "{:05.0f}" # 5-digit format with trailing zeros
       "9960_Y":
-        min_td: 42500.0 # Extended southward for more coverage
-        max_td: 44500.0 # Extended northward for complete coverage
+        min_td: 42000.0 # Extended to match RipCharts southernmost lines
+        max_td: 45000.0 # Extended to match RipCharts northernmost lines
         step: 50.0
         format: "{:05.0f}" # 5-digit format with trailing zeros
 
     # Calibration anchors to match RipCharts exactly
     calibration_anchors:
-      - latitude: 40.2225
-        longitude: -69.2125
+      - latitude: 41.6727 # 41° 40.36'N converted to decimal
+        longitude: -69.9725 # -69° 58.35'W converted to decimal
         td_values:
-          "9960_W": 13950.0
-          "9960_Y": 43350.0
-      - latitude: 41.9992
-        longitude: -65.1057
-        td_values:
-          "9960_W": 13500.0
-          "9960_Y": 43750.0
-
-    # Unwrapping parameters
-    unwrapping:
-      enabled: true
-      gri: 9960.0 # μs
-      smooth_iterations: 3
+          "9960_W": 13850.0 # RipCharts reference value - PRIMARY ANCHOR
+          "9960_Y": 43950.0 # RipCharts reference value - PRIMARY ANCHOR
 
     # Label placement
     labels:
@@ -174,13 +163,6 @@ regions:
       placement: ["start", "middle", "end"] # Where to place labels on lines
       min_line_length: 5.0 # km minimum line length for labeling
       format_trailing_zeros: true
-
-    # Grid processing options
-    processing:
-      clip_to_bounds: true # Clip all lines to bounding box
-      min_line_length: 2.0 # km minimum line length to keep
-      max_line_segments: 1000 # Maximum segments per line
-      simplify_tolerance: 0.001 # Degrees tolerance for line simplification
 
   nc_va_ny_9960xy:
     name: "NC VA NY"

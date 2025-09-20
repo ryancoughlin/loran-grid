@@ -123,7 +123,7 @@ class RegionConfig(BaseModel):
     calibration_anchors: List[CalibrationAnchor] = Field(
         ..., description="Calibration anchor points"
     )
-    unwrapping: UnwrappingConfig = Field(..., description="Unwrapping configuration")
+    unwrapping: Optional[UnwrappingConfig] = Field(None, description="Unwrapping configuration")
     labels: LabelConfig = Field(..., description="Label configuration")
     processing: Optional[ProcessingConfig] = Field(
         default_factory=ProcessingConfig, description="Processing configuration"
