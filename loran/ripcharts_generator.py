@@ -85,18 +85,83 @@ def crop_to_bounds(
     coordinates: List[Tuple[float, float]],
     bounds: List[float]
 ) -> List[Tuple[float, float]]:
-    """Simple crop: keep only points inside rectangle."""
-    if not coordinates:
+    """Clean crop: clip lines to bounding box with proper intersections."""
+    if not coordinates or len(coordinates) < 2:
         return []
     
     min_lon, min_lat, max_lon, max_lat = bounds
     cropped = []
     
-    for lon, lat in coordinates:
-        if min_lon <= lon <= max_lon and min_lat <= lat <= max_lat:
-            cropped.append((lon, lat))
+    # Process line segments
+    for i in range(len(coordinates) - 1):
+        p1 = coordinates[i]
+        p2 = coordinates[i + 1]
+        
+        # Clip line segment to bounds using Cohen-Sutherland algorithm
+        clipped_segment = clip_line_segment(p1, p2, min_lon, min_lat, max_lon, max_lat)
+        
+        if clipped_segment:
+            # Add start point if it's the first segment or if it's different from last point
+            if not cropped or cropped[-1] != clipped_segment[0]:
+                cropped.append(clipped_segment[0])
+            
+            # Add end point
+            cropped.append(clipped_segment[1])
     
     return cropped
+
+
+def clip_line_segment(p1: Tuple[float, float], p2: Tuple[float, float], 
+                     min_lon: float, min_lat: float, max_lon: float, max_lat: float) -> Optional[List[Tuple[float, float]]]:
+    """Clip a line segment to a rectangle using Cohen-Sutherland algorithm."""
+    x1, y1 = p1
+    x2, y2 = p2
+    
+    # Compute region codes for both points
+    def compute_code(x, y):
+        code = 0
+        if x < min_lon: code |= 1  # left
+        if x > max_lon: code |= 2  # right
+        if y < min_lat: code |= 4  # bottom
+        if y > max_lat: code |= 8  # top
+        return code
+    
+    code1 = compute_code(x1, y1)
+    code2 = compute_code(x2, y2)
+    
+    while True:
+        # Both points inside rectangle
+        if code1 == 0 and code2 == 0:
+            return [(x1, y1), (x2, y2)]
+        
+        # Both points outside rectangle on same side
+        if code1 & code2 != 0:
+            return None
+        
+        # At least one point is outside, clip it
+        code_out = code1 if code1 != 0 else code2
+        
+        # Find intersection point
+        if code_out & 8:  # top
+            x = x1 + (x2 - x1) * (max_lat - y1) / (y2 - y1)
+            y = max_lat
+        elif code_out & 4:  # bottom
+            x = x1 + (x2 - x1) * (min_lat - y1) / (y2 - y1)
+            y = min_lat
+        elif code_out & 2:  # right
+            y = y1 + (y2 - y1) * (max_lon - x1) / (x2 - x1)
+            x = max_lon
+        elif code_out & 1:  # left
+            y = y1 + (y2 - y1) * (min_lon - x1) / (x2 - x1)
+            x = min_lon
+        
+        # Update the point outside the rectangle
+        if code_out == code1:
+            x1, y1 = x, y
+            code1 = compute_code(x1, y1)
+        else:
+            x2, y2 = x, y
+            code2 = compute_code(x2, y2)
 
 
 def generate_contour_line(
@@ -105,38 +170,34 @@ def generate_contour_line(
     lon_grid: np.ndarray,
     td_value: float
 ) -> List[Tuple[float, float]]:
-    """Generate contour line for specific TD value."""
+    """Generate contour line for specific TD value using matplotlib contouring."""
     try:
         import matplotlib.pyplot as plt
         
-        # Create contour
+        # Create contour with higher resolution for smoother lines
         fig, ax = plt.subplots(figsize=(1, 1))
-        cs = ax.contour(lon_grid, lat_grid, td_grid, levels=[td_value])
+        
+        # Use contour with specific level and higher resolution
+        cs = ax.contour(lon_grid, lat_grid, td_grid, levels=[td_value], colors='black')
         plt.close(fig)
         
-        # Extract coordinates
+        # Extract coordinates from contour collections
         coordinates = []
         for collection in cs.collections:
             for path in collection.get_paths():
                 vertices = path.vertices
-                coordinates.extend([(lon, lat) for lon, lat in vertices])
+                if len(vertices) > 1:  # Only keep paths with multiple points
+                    # Convert to (lon, lat) tuples
+                    for vertex in vertices:
+                        lon, lat = vertex[0], vertex[1]
+                        coordinates.append((lon, lat))
         
         return coordinates
         
-    except ImportError:
-        # Fallback: threshold-based approach
-        coordinates = []
-        threshold = 25.0  # μs tolerance
-        
-        mask = np.abs(td_grid - td_value) < threshold
-        indices = np.where(mask)
-        
-        for i, j in zip(indices[0], indices[1]):
-            lon = lon_grid[i, j]
-            lat = lat_grid[i, j]
-            coordinates.append((lon, lat))
-        
-        return coordinates
+    except Exception as e:
+        print(f"Warning: Contour generation failed for TD {td_value}: {e}")
+        # Fallback: return empty list
+        return []
 
 
 def generate_labels_for_line(
@@ -179,9 +240,9 @@ def generate_region_grid(
     region = config.regions[region_name]
     bounds = region.bounds  # [min_lon, min_lat, max_lon, max_lat]
     
-    # Create coordinate grids with buffer for complete line generation
+    # Create coordinate grids with large buffer for complete line generation
     resolution = config.grid_resolution
-    buffer = resolution * 10
+    buffer = resolution * 50  # Much larger buffer to capture full TD range
     
     extended_bounds = [
         bounds[0] - buffer, bounds[1] - buffer,

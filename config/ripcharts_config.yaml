@@ -31,7 +31,7 @@ chains:
         name: "Nantucket"
         latitude: 41.2650
         longitude: -69.9733
-        emission_delay: 43000.0 # μs
+        emission_delay: 27005.9 # μs - calibrated to RipCharts anchor points
         coding_delay: 0.0
         asf: 0.0
       "Y":
@@ -39,7 +39,7 @@ chains:
         name: "Carolina Beach"
         latitude: 34.0583
         longitude: -77.9050
-        emission_delay: 43000.0 # μs
+        emission_delay: 42264.1 # μs - calibrated to RipCharts anchor points
         coding_delay: 0.0
         asf: 0.0
 
@@ -59,7 +59,7 @@ chains:
         name: "Grangeville"
         latitude: 30.4617
         longitude: -86.0683
-        emission_delay: 11500.0 # μs
+        emission_delay: 14075.4 # μs - calibrated to RipCharts primary anchor
         coding_delay: 0.0
         asf: 0.0
       "X":
@@ -80,10 +80,10 @@ chains:
         asf: 0.0
       "Z":
         id: "Z"
-        name: "Jupiter Inlet"
-        latitude: 26.9489
-        longitude: -80.0747
-        emission_delay: 45172.9 # μs - calibrated to RipCharts with Malone master
+        name: "Cape Canaveral"
+        latitude: 28.4667
+        longitude: -80.5500
+        emission_delay: 63586.8 # μs - calibrated to RipCharts primary anchor
         coding_delay: 0.0
         asf: 0.0
 
@@ -150,8 +150,8 @@ regions:
     display_name: "9960wy"
     description: "New England region with 9960 W-Y pairs"
 
-    # Geographic bounds: [min_lon, min_lat, max_lon, max_lat]
-    bounds: [-77.0, 36.0, -65.0, 42.0]
+    # Geographic bounds: [min_lon, min_lat, max_lon, max_lat] - extended north to match RipCharts
+    bounds: [-77.0, 36.0, -65.0, 45.0]
 
     # Station pairs to generate
     pairs:
@@ -192,51 +192,56 @@ regions:
       min_line_length: 5.0 # km minimum line length for labeling
       format_trailing_zeros: true
 
-  nc_va_ny_9960xy:
+  nc_va_ny_9960_xy:
     name: "NC VA NY"
     display_name: "9960xy"
     description: "North Carolina, Virginia, New York region with 9960 X-Y pairs"
 
-    bounds: [-78.0, 33.0, -70.0, 42.0]
+    # Geographic bounds: [min_lon, min_lat, max_lon, max_lat] - Offshore fishing coverage, stops at Norfolk VA
+    bounds: [-80.0, 32.0, -70.0, 36.85]
 
+    # Station pairs to generate
     pairs:
       - chain_id: "9960"
         secondary_id: "X"
         family: "X"
-        orientation: "vertical"
+        orientation: "vertical" # NW-SE lines
       - chain_id: "9960"
         secondary_id: "Y"
         family: "Y"
-        orientation: "horizontal"
+        orientation: "horizontal" # SW-NE lines
 
+    # TD ranges to fill entire offshore fishing area with dense coverage
     td_ranges:
       "9960_X":
-        min_td: 42500.0
-        max_td: 44500.0
+        min_td: 25500.0 # X family - extended to fill entire offshore area
+        max_td: 28000.0 # Extended to cover all water areas
         step: 50.0
-        format: "{:05.0f}"
+        format: "{:05.0f}" # 5-digit format with trailing zeros
       "9960_Y":
-        min_td: 42800.0
-        max_td: 44050.0
+        min_td: 38000.0 # Y family - extended to fill entire offshore area
+        max_td: 42000.0 # Extended to cover all water areas
         step: 50.0
-        format: "{:05.0f}"
+        format: "{:05.0f}" # 5-digit format with trailing zeros
 
+    # Calibration anchors to match RipCharts exactly
     calibration_anchors:
-      - latitude: 37.5
-        longitude: -74.0
+      - latitude: 33.30633 # Anchor A (bend/center-ish)
+        longitude: -77.41517 # Anchor A (bend/center-ish)
         td_values:
-          "9960_X": 43500.0
-          "9960_Y": 43400.0
+          "9960_X": 27150.0 # RipCharts reference value - ANCHOR A
+          "9960_Y": 39050.0 # RipCharts reference value - ANCHOR A
+      - latitude: 35.93567 # Anchor B (NE corner)
+        longitude: -72.86133 # Anchor B (NE corner)
+        td_values:
+          "9960_X": 26350.0 # RipCharts reference value - ANCHOR B
+          "9960_Y": 41150.0 # RipCharts reference value - ANCHOR B
 
-    unwrapping:
-      enabled: true
-      gri: 9960.0
-      smooth_iterations: 3
-
+    # Label placement
     labels:
       enabled: true
-      placement: ["start", "middle", "end"]
-      min_line_length: 5.0
+      placement: ["start", "middle", "end"] # Where to place labels on lines
+      min_line_length: 5.0 # km minimum line length for labeling
       format_trailing_zeros: true
 
   sc_ga_fl_7980_yz:
@@ -291,51 +296,61 @@ regions:
       min_line_length: 5.0 # km minimum line length for labeling
       format_trailing_zeros: true
 
-  south_fl_7980wz:
+  south_fl_7980_wz:
     name: "South FL"
     display_name: "7980wz"
     description: "South Florida region with 7980 W-Z pairs"
 
-    bounds: [-83.0, 24.0, -75.0, 30.0]
+    # Geographic bounds: [min_lon, min_lat, max_lon, max_lat] - extended to match RipCharts
+    bounds: [-85.0, 22.0, -72.0, 30.0]
 
+    # Station pairs to generate
     pairs:
       - chain_id: "7980"
         secondary_id: "W"
         family: "W"
-        orientation: "vertical"
+        orientation: "vertical" # NW-SE lines
       - chain_id: "7980"
         secondary_id: "Z"
         family: "Z"
-        orientation: "horizontal"
+        orientation: "horizontal" # SW-NE lines
 
+    # TD ranges to match RipCharts dense edge-to-edge coverage
     td_ranges:
       "7980_W":
-        min_td: 11000.0
-        max_td: 13000.0
+        min_td: 13500.0 # W family - extended to match RipCharts coverage
+        max_td: 14800.0 # Extended to cover entire region including Cuba
         step: 50.0
-        format: "{:05.0f}"
+        format: "{:05.0f}" # 5-digit format with trailing zeros
       "7980_Z":
-        min_td: 53000.0
-        max_td: 55000.0
+        min_td: 61000.0 # Z family - extended to match RipCharts coverage
+        max_td: 63000.0 # Extended to cover entire region including Cuba
         step: 50.0
-        format: "{:05.0f}"
+        format: "{:05.0f}" # 5-digit format with trailing zeros
 
+    # Calibration anchors to match RipCharts exactly
     calibration_anchors:
-      - latitude: 27.0
-        longitude: -79.0
+      - latitude: 24.65683 # Anchor A (west of Bahamas)
+        longitude: -79.03200 # Anchor A (west of Bahamas)
         td_values:
-          "7980_W": 12000.0
-          "7980_Z": 54000.0
+          "7980_W": 14150.0 # RipCharts reference value - ANCHOR A
+          "7980_Z": 62000.0 # RipCharts reference value - ANCHOR A
+      - latitude: 27.91967 # Anchor B (NE "point")
+        longitude: -78.38850 # Anchor B (NE "point")
+        td_values:
+          "7980_W": 14500.0 # RipCharts reference value - ANCHOR B
+          "7980_Z": 61350.0 # RipCharts reference value - ANCHOR B
+      - latitude: 23.05633 # Anchor C (south edge, W of Matanzas)
+        longitude: -81.72283 # Anchor C (south edge, W of Matanzas)
+        td_values:
+          "7980_W": 13800.0 # RipCharts reference value - ANCHOR C
+          "7980_Z": 62650.0 # RipCharts reference value - ANCHOR C
 
-    unwrapping:
-      enabled: true
-      gri: 7980.0
-      smooth_iterations: 3
-
+    # Label placement
     labels:
       enabled: true
-      placement: ["start", "middle", "end"]
-      min_line_length: 5.0
+      placement: ["start", "middle", "end"] # Where to place labels on lines
+      min_line_length: 5.0 # km minimum line length for labeling
       format_trailing_zeros: true
 
 # Output settings
