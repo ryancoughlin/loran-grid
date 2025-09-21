@@ -245,9 +245,9 @@ regions:
       format_trailing_zeros: true
 
   sc_ga_fl_7980_yz:
-    name: "SC GA FL"
+    name: "FL GA SC"
     display_name: "7980yz"
-    description: "South Carolina, Georgia, Florida region with 7980 Y-Z pairs"
+    description: "Florida, Georgia, South Carolina region with 7980 Y-Z pairs"
 
     # Geographic bounds: [min_lon, min_lat, max_lon, max_lat]
     bounds: [-82.0, 28.0, -75.0, 34.9]
