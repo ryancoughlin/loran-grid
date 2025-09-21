@@ -197,8 +197,8 @@ regions:
     display_name: "9960xy"
     description: "North Carolina, Virginia, New York region with 9960 X-Y pairs"
 
-    # Geographic bounds: [min_lon, min_lat, max_lon, max_lat] - Offshore fishing coverage, stops at Norfolk VA
-    bounds: [-80.0, 32.0, -70.0, 36.85]
+    # Geographic bounds: [min_lon, min_lat, max_lon, max_lat] - Offshore fishing coverage, extends to Cape Cod
+    bounds: [-80.0, 32.0, -70.0, 42.0]
 
     # Station pairs to generate
     pairs:
@@ -211,16 +211,16 @@ regions:
         family: "Y"
         orientation: "horizontal" # SW-NE lines
 
-    # TD ranges to fill entire offshore fishing area with dense coverage
+    # TD ranges to fill entire offshore area from NC to Cape Cod with dense coverage
     td_ranges:
       "9960_X":
-        min_td: 25500.0 # X family - extended to fill entire offshore area
-        max_td: 28000.0 # Extended to cover all water areas
+        min_td: 25000.0 # X family - extended to cover NC to Cape Cod
+        max_td: 28500.0 # Extended to cover all water areas north to Cape Cod
         step: 50.0
         format: "{:05.0f}" # 5-digit format with trailing zeros
       "9960_Y":
-        min_td: 38000.0 # Y family - extended to fill entire offshore area
-        max_td: 42000.0 # Extended to cover all water areas
+        min_td: 36000.0 # Y family - extended to cover NC to Cape Cod
+        max_td: 46000.0 # Extended to cover all water areas north to Cape Cod
         step: 50.0
         format: "{:05.0f}" # 5-digit format with trailing zeros
 
