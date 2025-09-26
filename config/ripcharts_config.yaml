@@ -150,8 +150,8 @@ regions:
     display_name: "9960wy"
     description: "New England region with 9960 W-Y pairs"
 
-    # Geographic bounds: [min_lon, min_lat, max_lon, max_lat] - extended north to match RipCharts
-    bounds: [-77.0, 36.0, -65.0, 45.0]
+    # Geographic bounds: [min_lon, min_lat, max_lon, max_lat] - updated per business partner feedback
+    bounds: [-76.0, 38.0, -67.0, 43.0]
 
     # Station pairs to generate
     pairs:
@@ -197,8 +197,8 @@ regions:
     display_name: "9960xy"
     description: "North Carolina, Virginia, New York region with 9960 X-Y pairs"
 
-    # Geographic bounds: [min_lon, min_lat, max_lon, max_lat] - Offshore fishing coverage, extends to Cape Cod
-    bounds: [-80.0, 32.0, -70.0, 42.0]
+    # Geographic bounds: [min_lon, min_lat, max_lon, max_lat] - updated per business partner feedback
+    bounds: [-82.0, 30.0, -67.0, 41.0]
 
     # Station pairs to generate
     pairs:
@@ -249,8 +249,8 @@ regions:
     display_name: "7980yz"
     description: "Florida, Georgia, South Carolina region with 7980 Y-Z pairs"
 
-    # Geographic bounds: [min_lon, min_lat, max_lon, max_lat]
-    bounds: [-82.0, 28.0, -75.0, 34.9]
+    # Geographic bounds: [min_lon, min_lat, max_lon, max_lat] - updated per business partner feedback
+    bounds: [-82.0, 26.0, -73.0, 35.0]
 
     # Station pairs to generate
     pairs:
@@ -301,8 +301,8 @@ regions:
     display_name: "7980wz"
     description: "South Florida region with 7980 W-Z pairs"
 
-    # Geographic bounds: [min_lon, min_lat, max_lon, max_lat] - extended to match RipCharts
-    bounds: [-85.0, 22.0, -72.0, 30.0]
+    # Geographic bounds: [min_lon, min_lat, max_lon, max_lat] - updated per business partner feedback
+    bounds: [-83.0, 18.0, -74.0, 30.0]
 
     # Station pairs to generate
     pairs:
