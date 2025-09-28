@@ -146,12 +146,12 @@ chains:
 # Regional Configurations
 regions:
   new_england_9960wy:
-    name: "New England"
+    name: "New England (9960 WY) — anchored to RipCharts"
     display_name: "9960wy"
-    description: "New England region with 9960 W-Y pairs"
+    description: "New England region with 9960 W-Y pairs - anchored to RipCharts with offsets"
 
-    # Geographic bounds: [min_lon, min_lat, max_lon, max_lat] - updated per business partner feedback
-    bounds: [-76.0, 38.0, -67.0, 43.0]
+    # Geographic bounds: [min_lon, min_lat, max_lon, max_lat] - NE Canyons box
+    bounds: [-77.0, 36.0, -65.0, 42.0]
 
     # Station pairs to generate
     pairs:
@@ -164,26 +164,41 @@ regions:
         family: "Y"
         orientation: "horizontal" # SW-NE lines
 
-    # TD ranges to match RipCharts dense edge-to-edge coverage
+    # TD ranges - expanded for edge-to-edge coverage
     td_ranges:
       "9960_W":
-        min_td: 11500.0 # Extended to match RipCharts leftmost lines
-        max_td: 17000.0 # Extended to match RipCharts rightmost lines
+        min_td: 12000.0 # W: Extended west for full coverage
+        max_td: 15500.0 # W: Extended east for full coverage
         step: 50.0
         format: "{:05.0f}" # 5-digit format with trailing zeros
       "9960_Y":
-        min_td: 42000.0 # Extended to match RipCharts southernmost lines
-        max_td: 45000.0 # Extended to match RipCharts northernmost lines
+        min_td: 42000.0 # Y: Extended south for full coverage
+        max_td: 44500.0 # Y: Extended north for full coverage
         step: 50.0
         format: "{:05.0f}" # 5-digit format with trailing zeros
 
-    # Calibration anchors to match RipCharts exactly
+    # Calibration anchors - four point calibration with offsets enabled
     calibration_anchors:
-      - latitude: 41.6727 # 41° 40.36'N converted to decimal
-        longitude: -69.9725 # -69° 58.35'W converted to decimal
+      - latitude: 40.700167 # Anchor A (mid-box)
+        longitude: -70.559333
         td_values:
-          "9960_W": 13850.0 # RipCharts reference value - PRIMARY ANCHOR
-          "9960_Y": 43950.0 # RipCharts reference value - PRIMARY ANCHOR
+          "9960_W": 14250.0 # Target W=14250
+          "9960_Y": 43800.0 # Target Y=43800
+      - latitude: 38.931000 # Anchor B (south edge)
+        longitude: -71.765000
+        td_values:
+          "9960_W": 14900.0 # Target W=14900
+          "9960_Y": 42850.0 # Target Y=42850
+      - latitude: 40.903000 # Anchor C (east edge)
+        longitude: -65.123167
+        td_values:
+          "9960_W": 12800.0 # Target W=12800
+          "9960_Y": 43450.0 # Target Y=43450
+      - latitude: 41.6867 # Anchor D (Chatham elbow - CRITICAL)
+        longitude: -69.9500
+        td_values:
+          "9960_W": 13850.0 # Target W=13850 (RipCharts exact)
+          "9960_Y": 43950.0 # Target Y=43950 (RipCharts exact)
 
     # Label placement
     labels:
@@ -211,16 +226,16 @@ regions:
         family: "Y"
         orientation: "horizontal" # SW-NE lines
 
-    # TD ranges to fill entire offshore area from NC to Cape Cod with dense coverage
+    # TD ranges - expanded for edge-to-edge coverage
     td_ranges:
       "9960_X":
-        min_td: 25000.0 # X family - extended to cover NC to Cape Cod
-        max_td: 28500.0 # Extended to cover all water areas north to Cape Cod
+        min_td: 24000.0 # X family - extended west for full coverage
+        max_td: 29500.0 # X family - extended east for full coverage
         step: 50.0
         format: "{:05.0f}" # 5-digit format with trailing zeros
       "9960_Y":
-        min_td: 36000.0 # Y family - extended to cover NC to Cape Cod
-        max_td: 46000.0 # Extended to cover all water areas north to Cape Cod
+        min_td: 35000.0 # Y family - extended south for full coverage
+        max_td: 47000.0 # Y family - extended north for full coverage
         step: 50.0
         format: "{:05.0f}" # 5-digit format with trailing zeros
 
@@ -263,16 +278,16 @@ regions:
         family: "Z"
         orientation: "vertical" # NW-SE lines
 
-    # TD ranges to match RipCharts dense edge-to-edge coverage
+    # TD ranges - expanded for edge-to-edge coverage
     td_ranges:
       "7980_Y":
-        min_td: 58000.0 # Y family - extended further south to match RipCharts
-        max_td: 62500.0 # Y family - extended further west to match RipCharts
+        min_td: 57000.0 # Y family - extended south for full coverage
+        max_td: 63500.0 # Y family - extended north for full coverage
         step: 50.0
         format: "{:05.0f}" # 5-digit format with trailing zeros
       "7980_Z":
-        min_td: 43500.0 # Z family - extended further south to match RipCharts
-        max_td: 47000.0 # Z family - extended further north to match RipCharts
+        min_td: 42500.0 # Z family - extended west for full coverage
+        max_td: 48000.0 # Z family - extended east for full coverage
         step: 50.0
         format: "{:05.0f}" # 5-digit format with trailing zeros
 
@@ -315,16 +330,16 @@ regions:
         family: "Z"
         orientation: "horizontal" # SW-NE lines
 
-    # TD ranges to match RipCharts dense edge-to-edge coverage
+    # TD ranges - expanded for edge-to-edge coverage
     td_ranges:
       "7980_W":
-        min_td: 13500.0 # W family - extended to match RipCharts coverage
-        max_td: 14800.0 # Extended to cover entire region including Cuba
+        min_td: 13000.0 # W family - extended west for full coverage
+        max_td: 15500.0 # W family - extended east for full coverage
         step: 50.0
         format: "{:05.0f}" # 5-digit format with trailing zeros
       "7980_Z":
-        min_td: 61000.0 # Z family - extended to match RipCharts coverage
-        max_td: 63000.0 # Extended to cover entire region including Cuba
+        min_td: 60000.0 # Z family - extended south for full coverage
+        max_td: 64000.0 # Z family - extended north for full coverage
         step: 50.0
         format: "{:05.0f}" # 5-digit format with trailing zeros
 
