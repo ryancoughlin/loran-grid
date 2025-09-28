@@ -164,16 +164,16 @@ regions:
         family: "Y"
         orientation: "horizontal" # SW-NE lines
 
-    # TD ranges - expanded for edge-to-edge coverage
+    # TD ranges - maximum expansion for complete edge-to-edge coverage
     td_ranges:
       "9960_W":
-        min_td: 12000.0 # W: Extended west for full coverage
-        max_td: 15500.0 # W: Extended east for full coverage
+        min_td: 11000.0 # W: Maximum west extension for complete coverage
+        max_td: 16500.0 # W: Maximum east extension for complete coverage
         step: 50.0
         format: "{:05.0f}" # 5-digit format with trailing zeros
       "9960_Y":
-        min_td: 42000.0 # Y: Extended south for full coverage
-        max_td: 44500.0 # Y: Extended north for full coverage
+        min_td: 41000.0 # Y: Maximum south extension for complete coverage
+        max_td: 45000.0 # Y: Maximum north extension for complete coverage
         step: 50.0
         format: "{:05.0f}" # 5-digit format with trailing zeros
 

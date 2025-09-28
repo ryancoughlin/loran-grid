@@ -352,6 +352,30 @@ def grid_result_to_geojson(
     """Convert grid result to GeoJSON."""
     features = []
     
+    # Add region outline polygon first
+    bounds = result.metadata["bounds"]
+    min_lon, min_lat, max_lon, max_lat = bounds
+    
+    region_outline = {
+        "type": "Feature",
+        "properties": {
+            "kind": "region_outline",
+            "name": result.region_name,
+            "description": "Region boundary polygon"
+        },
+        "geometry": {
+            "type": "Polygon",
+            "coordinates": [[
+                [min_lon, min_lat],
+                [max_lon, min_lat],
+                [max_lon, max_lat],
+                [min_lon, max_lat],
+                [min_lon, min_lat]
+            ]]
+        }
+    }
+    features.append(region_outline)
+    
     # Add line features
     for line in result.lines:
         feature = {
